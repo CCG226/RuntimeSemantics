@@ -330,7 +330,7 @@ TerminalNode* Parser::StatTerminal()
         node->child1 = Loop2Terminal();
 
     }
-    else if (tk.GetType() == KW_set)
+    else if (tk.GetType() == KW_set || tk.GetType() == Identifier)
     {
         node->child1 = AssignTerminal();
 
