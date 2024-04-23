@@ -283,10 +283,12 @@ TerminalNode* Parser::StatsTerminal()
 }
 TerminalNode* Parser::MstatTerminal()
 {
+    cout << "HI" << endl;
     TerminalNode* node = new TerminalNode("Mstat");
     Token tk = programTokens.front();
-    if (tk.GetType() != LeftCurl || tk.GetType() != KW_cin || tk.GetType() != KW_cout || tk.GetType() != KW_if || tk.GetType() != KW_pick || tk.GetType() != KW_while || tk.GetType() != KW_repeat || tk.GetType() != KW_cin || tk.GetType() != KW_set || tk.GetType() != KW_label || tk.GetType() != KW_jump)
+    if (tk.GetType() != Identifier && tk.GetType() != LeftCurl && tk.GetType() != KW_cout && tk.GetType() != KW_if && tk.GetType() != KW_pick && tk.GetType() != KW_while && tk.GetType() != KW_repeat && tk.GetType() != KW_cin && tk.GetType() != KW_set && tk.GetType() != KW_label && tk.GetType() != KW_jump)
     {
+        cout << "BRUH";
         return nullptr;
     }
     node->child1 = StatTerminal();
@@ -307,6 +309,7 @@ TerminalNode* Parser::StatTerminal()
     }
     else if (tk.GetType() == KW_cout)
     {
+        cout << "2BRUH";
         node->child1 = OutTerminal();
 
     }
