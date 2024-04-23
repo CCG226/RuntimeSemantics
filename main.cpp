@@ -24,13 +24,17 @@ int main(int argc, char* argv[])
 
   Parser parser(scanner.Driver());
 
-  StaticAnalyzer statAnalyzer(parser.Driver());
+  parser.Driver();
+
+  StaticAnalyzer statAnalyzer(parser.GetProgramNode());
 
   statAnalyzer.SemanticsDriver();
 
   RuntimeAnalyzer finalAnalyzer(reader.CurrentMode());
 
-  finalAnalyzer.SemanticsDriver();
+  finalAnalyzer.SemanticsDriver(parser.GetProgramNode());
+
+  finalAnalyzer.ToAssembly();
 
   parser.Clear();
 

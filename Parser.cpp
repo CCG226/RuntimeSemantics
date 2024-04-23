@@ -25,6 +25,10 @@ TerminalNode* Parser::Driver()
     root = ProgramTerminal();
     return root;
 }
+TerminalNode* Parser::GetProgramNode()
+{
+    return root;
+}
 TerminalNode* Parser::ProgramTerminal()
 {
     TerminalNode* node = new TerminalNode("Program");

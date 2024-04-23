@@ -20,6 +20,7 @@ public:
     //clears tree data from root
     void Clear();
 
+    TerminalNode* GetProgramNode();
 private:
     //tree root (program terminal)
     TerminalNode* root;

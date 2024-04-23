@@ -20,6 +20,7 @@ void StaticAnalyzer::SemanticsDriver()
 //enters a program terminal and its children recursive to perform static analysis
 void StaticAnalyzer::TraverseTerminal(TerminalNode* termNode)
 {
+
     //flag that is raised after finishing global scope declarations
     static bool finishedAddingGlobalVariables = false;
 

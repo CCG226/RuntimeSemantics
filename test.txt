@@ -1,6 +1,9 @@
 // p2g12, test variable declaration with a cout
+create x := 5 ;
 tape
+
 {
-   create x := 5 ;
-   cout x ;
+  create y; 
+
+  if [ x...y ] then cin x ;;
 }
