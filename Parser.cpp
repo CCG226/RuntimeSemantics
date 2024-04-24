@@ -176,25 +176,28 @@ TerminalNode* Parser::ExprTerminal()
 }
 TerminalNode* Parser::NTerminal()
 {
-    TerminalNode* node = new TerminalNode("N");
-    Token tk = programTokens.front();
 
+    TerminalNode* node = new TerminalNode("N");
+
+    node->child1 = ATerminal();
+    Token tk = programTokens.front();
     if (tk.GetType() == OP_ForwardSlash)
     {
         node->tk1 = tk;
         programTokens.pop();
-        node->child1 = ATerminal();
+        node->child2 = ATerminal();
         return node;
     }
     else if (tk.GetType() == OP_Plus)
     {
+        cout << "2" << endl;
         node->tk1 = tk;
         programTokens.pop();
-        node->child1 = ATerminal();
+        node->child2 = ATerminal();
         return node;
     }
     else {
-        node->child1 = ATerminal();
+
         return node;
     }
 
