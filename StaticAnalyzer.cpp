@@ -41,6 +41,10 @@ void StaticAnalyzer::TraverseTerminal(TerminalNode* termNode)
             finishedAddingGlobalVariables = true;
         }
     }
+    if (termNode->label == FUNC_DECLARATION)
+    {
+        VariableDecHandler(termNode->tk2, GLOBAL_SCOPE);
+    }
     //if we are in avariable declartion terminal (<vars>)
     if (termNode->label == VARIABLE_DECLARTIONS)
     {
@@ -60,11 +64,14 @@ void StaticAnalyzer::TraverseTerminal(TerminalNode* termNode)
     }
     //in ever node terminal check if terminal token 1 or 2 is a identifier and if that identifer is valid
     IdentiferUsageValidator(termNode->tk1);
-    //ignore function names
-    if (termNode->label != FUNC_DECLARATION)
+
+    if (termNode->label != LABEL_DECLARATION && termNode->label != GOTO_DECLARATION)
     {
         IdentiferUsageValidator(termNode->tk2);
     }
+
+
+
 
     //recursival check child node terminals
     TraverseTerminal(termNode->child1);
