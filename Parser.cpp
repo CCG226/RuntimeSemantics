@@ -244,6 +244,7 @@ TerminalNode* Parser::RTerminal()
     if (tk.GetType() == LeftPara)
     {
         node->tk1 = tk;
+        programTokens.pop();
         node->child1 = ExprTerminal();
         tk = programTokens.front();
         if (tk.GetType() == RightPara)
