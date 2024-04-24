@@ -19,6 +19,8 @@ private:
     const std::string VARIABLE_DECLARTIONS = "Vars";
     const std::string BLOCK_DECLARATION = "Block";
     const std::string FUNC_DECLARATION = "Func";
+    const std::string LABEL_DECLARATION = "Label";
+    const std::string GOTO_DECLARATION = "Goto";
     //root node of a programs parse tree 
     TerminalNode* programNode;
     //symbol stack, for tracking variable scopes and detecting identifier miuse. (variable used in wrong scope/use of undeclared variable)
