@@ -60,7 +60,7 @@ void RuntimeAnalyzer::ErrorHandler(string msg)
 //appends variable initializations at end of assembly string
 void RuntimeAnalyzer::InitializeAsmVariables()
 {
-    for (int i = 0; i < tempVariables.size();i++)
+    for (int i = 0; static_cast<size_t>(i) < tempVariables.size();i++)
     {
         output = output + tempVariables[i] + " 0\n";
     }

@@ -190,7 +190,7 @@ TerminalNode* Parser::NTerminal()
     }
     else if (tk.GetType() == OP_Plus)
     {
-        cout << "2" << endl;
+
         node->tk1 = tk;
         programTokens.pop();
         node->child2 = ATerminal();
