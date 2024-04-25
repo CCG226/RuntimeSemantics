@@ -1,9 +1,9 @@
-// p2g12, test variable declaration with a cout
+// p4g3, example of simple expression calculation
 create x := 5 ;
+create y ;
 tape
-
-{
-  create y; 
-
-  if [ x...y ] then cin x ;;
+{  
+   y = 7 ;
+   set y = 5 * 7 + ^ x ;
+   cout  y ;
 }

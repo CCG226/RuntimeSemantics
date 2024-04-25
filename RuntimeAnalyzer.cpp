@@ -2,9 +2,12 @@
 #include <iostream>
 using namespace std;
 
+//constructor, builds object and determines file name of asm output
 RuntimeAnalyzer::RuntimeAnalyzer(char fileType)
 {
+    //set output to empty
     Reset();
+    //determine name of file based on input method (file/keyboard)
     if (fileType == 'F')
     {
         fileName = "file.txt";
@@ -18,13 +21,14 @@ RuntimeAnalyzer::RuntimeAnalyzer(char fileType)
         ErrorHandler("Unknown parameter value \"" + to_string(fileType) + "\" for fileType determination . character must be either K for keyboard or F for file.");
     }
 }
+//resets assembly output for reuse
 void RuntimeAnalyzer::Reset()
 {
-
     output = "";
 }
+//generates label/temp variable name based on type enum
 std::string RuntimeAnalyzer::NameGenerator(NameType type)
-{
+{   //static variables to track how many variables/labels we've generated, value used to give unique names
     static int varCounter = 0;
     static int labelCounter = 0;
     string res = "";
@@ -47,12 +51,13 @@ std::string RuntimeAnalyzer::NameGenerator(NameType type)
 
     return res;
 }
-
+//error handling
 void RuntimeAnalyzer::ErrorHandler(string msg)
 {
     cout << "Runtime Semantics Analyzer Error: " << msg << endl;
     exit(1);
 }
+//appends variable initializations at end of assembly string
 void RuntimeAnalyzer::InitializeAsmVariables()
 {
     for (int i = 0; i < tempVariables.size();i++)
@@ -60,14 +65,17 @@ void RuntimeAnalyzer::InitializeAsmVariables()
         output = output + tempVariables[i] + " 0\n";
     }
 }
+// stores string assembly output in a txt file
 void RuntimeAnalyzer::ToAssembly()
 {
     ofstream asmFile(fileName);
+
     if (asmFile.is_open())
     {
         asmFile << output;
+
         std::cout << "File created: " << fileName << std::endl;
-        std::cout << "Output created: " << output << std::endl;
+
         asmFile.close();
     }
     else
@@ -76,29 +84,9 @@ void RuntimeAnalyzer::ToAssembly()
     }
 
 }
-void PrintTreeTest(TerminalNode* node, int level)
-{
-    if (node == nullptr)
-    {
-        return;
-    }
-    for (int i = 0; i < level; i++)
-    {
-        std::cout << "\t";
-    }
-
-    // std::cout << "Label: " << node->label << " Tokens: (";
-
-    std::cout << node->tk1.GetVal() << " ";
-    std::cout << node->tk2.GetVal() << " ";
-    std::cout << node->tk3.GetVal() << " ";
-    std::cout << node->tk4.GetVal() << " ";
-    std::cout << node->tk5.GetVal() << ")" << std::endl;
-    PrintTreeTest(node->child1, level + 1);
-    PrintTreeTest(node->child2, level + 1);
-    PrintTreeTest(node->child3, level + 1);
-    PrintTreeTest(node->child4, level + 1);
-}
+//handles runtime semantics of program using parse tree
+//traverses nodes via recursion
+//checks label of each to see what terminal the node represents and then we generate appropriate UMSL assembly code
 void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
 {
 
@@ -107,7 +95,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
 
         return;
     }
-    cout << "Currently Proccessing " + curNode->label + " node." << endl;
+
     if (curNode->label == PROGRAM_LABEL)
     {
 
@@ -625,7 +613,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         string labelName = curNode->tk2.GetVal();
         if (labelName == functionName)
         {
-            cout << "test " << funcPtr->label << endl;
+
             SemanticsDriver(funcPtr);
 
         }

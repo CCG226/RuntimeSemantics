@@ -6,7 +6,7 @@
 #include <fstream>
 #include "TerminalNode.h"
 enum NameType
-{
+{ //used to determine if NameGenerator should generate a label name or variable name
     Variable,
     Label
 };
@@ -14,22 +14,24 @@ class RuntimeAnalyzer
 {
 public:
 
-    RuntimeAnalyzer(char fileType);
-    void SemanticsDriver(TerminalNode* root);
-    void Reset();
-    void ToAssembly();
+    RuntimeAnalyzer(char fileType);//constructor, builds object and determines file name of asm output
+    void SemanticsDriver(TerminalNode* root); //handles runtime semantics of program using parse tree
+    void Reset(); //resets assembly output for reuse
+    void ToAssembly();// stores string assembly output in a txt file
 private:
-    std::string NameGenerator(NameType type);
-    void InitializeAsmVariables();
-    void ErrorHandler(std::string msg);
-    std::string fileName;
-    std::string output;
-    std::string EvenOddLeftExprValue;
-    std::string EvenOddRightExprValue;
-    TerminalNode* funcPtr;
-    std::string functionName;
-    std::vector<std::string> tempVariables;
-    std::vector<std::string> tempLabels;
+    std::string NameGenerator(NameType type); //generates label/temp variable name 
+    void InitializeAsmVariables();//appends variable initializations at end of assembly string
+    void ErrorHandler(std::string msg);//reports errors
+    std::string fileName;//output file name
+    std::string output;//compiled UMSL ASM string
+    std::string EvenOddLeftExprValue; //temp variable to track left expression value when using ... relational operator 
+    std::string EvenOddRightExprValue;//temp variable to track right expression value when using ... relational operator 
+    TerminalNode* funcPtr; //ptr to function node terminal to dynamically generate code of function on function call in asm
+    std::string functionName;//tracks name of programs function
+    std::vector<std::string> tempVariables;//list to track declared/generated variable names
+    std::vector<std::string> tempLabels;//list to track declared/generated variable names
+
+    //constant to represent node labels
     const std::string PROGRAM_LABEL = "Program";
     const std::string FUNC_LABEL = "Func";
     const std::string BLOCK_LABEL = "Block";
