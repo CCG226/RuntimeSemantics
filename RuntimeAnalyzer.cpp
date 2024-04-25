@@ -87,7 +87,7 @@ void PrintTreeTest(TerminalNode* node, int level)
         std::cout << "\t";
     }
 
-    std::cout << "Label: " << node->label << " Tokens: (";
+    // std::cout << "Label: " << node->label << " Tokens: (";
 
     std::cout << node->tk1.GetVal() << " ";
     std::cout << node->tk2.GetVal() << " ";
@@ -117,7 +117,11 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         {
             if (curNode->child2->label == FUNC_LABEL)
             {
-                // SemanticsDriver(curNode->child2);
+                string getFuncName = curNode->child2->tk2.GetVal();
+                functionName = getFuncName;
+
+                funcPtr = curNode->child2;
+
                 output = output + "toProgram: NOOP\n";
                 SemanticsDriver(curNode->child3);
             }
@@ -135,9 +139,6 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
     else if (curNode->label == FUNC_LABEL)
     {
 
-        string getFuncName = curNode->tk2.GetVal();
-        functionName = getFuncName;
-        funcPtr = curNode->child1;
         SemanticsDriver(curNode->child1);
 
     }
@@ -259,8 +260,10 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
     }
     else if (curNode->label == M_LABEL)
     {
+
         if (curNode->tk1.GetType() == OP_Carrot)
         {
+
             string exprVar = NameGenerator(Variable);
             output = output + "LOAD " + exprVar + "\n";
 
@@ -385,7 +388,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         output = output + "BRZERO " + ifLabel + "\n";
         output = output + ifLabel + ": NOOP\n";
         SemanticsDriver(curNode->child2->child1);
-        output = output + "BR " + elseLabel + "\n";
+        output = output + "BR " + skipLabel + "\n";
         output = output + elseLabel + ": NOOP\n";
         SemanticsDriver(curNode->child2->child2);
         output = output + skipLabel + ": NOOP\n";
@@ -415,11 +418,16 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
 
         string exitLoopLabel = NameGenerator(Label);
 
+        if (curNode->child2->tk1.GetType() != Dot)
+        {
+            output = output + "SUB " + LeftExprResultVar + "\n";
+        }
         SemanticsDriver(curNode->child2);
 
         SemanticsDriver(curNode->child4);
         output = output + "BR " + remainLoopLabel + "\n";
         output = output + exitLoopLabel + ": NOOP\n";
+
     }
     else if (curNode->label == LOOP2_LABEL)
     {
@@ -443,7 +451,10 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         string exitLoopLabel = NameGenerator(Label);
 
         SemanticsDriver(curNode->child1);
-
+        if (curNode->child3->tk1.GetType() != Dot)
+        {
+            output = output + "SUB " + LeftExprResultVar + "\n";
+        }
         SemanticsDriver(curNode->child3);
 
         output = output + "BR " + remainLoopLabel + "\n";
@@ -451,14 +462,22 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
     }
     else if (curNode->label == ASSIGN_LABEL)
     {
-        string reassignVar = curNode->tk2.GetVal();
+        string reassignVar;
+        if (curNode->tk1.GetType() == KW_set)
+        {
+            reassignVar = curNode->tk2.GetVal();
+        }
+        else
+        {
+            reassignVar = curNode->tk1.GetVal();
+        }
 
         string exprRes = NameGenerator(Variable);
         output = output + "LOAD " + exprRes + "\n";
         SemanticsDriver(curNode->child1);
         output = output + "STORE " + exprRes + "\n";
-        output = output + "LOAD " + reassignVar + "\n";
-        output = output + "STORE " + exprRes + "\n";
+        output = output + "LOAD " + exprRes + "\n";
+        output = output + "STORE " + reassignVar + "\n";
     }
     else if (curNode->label == RO_LABEL)
     {
@@ -606,6 +625,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         string labelName = curNode->tk2.GetVal();
         if (labelName == functionName)
         {
+            cout << "test " << funcPtr->label << endl;
             SemanticsDriver(funcPtr);
 
         }
