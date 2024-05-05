@@ -145,7 +145,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
             output = output + "toProgram: NOOP\n";
             SemanticsDriver(curNode->child3);
         }
-
+        //remove locally scoped main variables from stack
         for (int i = 0;i < mainScopeCounter;i++)
         {
             output = output + "POP" + "\n";
@@ -162,7 +162,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
 
         SemanticsDriver(curNode->child1);
 
-
+        //remove locally scoped function variables from stack
         for (int i = 0;i < funcScopeCounter;i++)
         {
             output = output + "POP" + "\n";
@@ -202,7 +202,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         output = output + "PUSH" + "\n";
         output = output + "STACKW 0" + "\n";
         if (finishedAddingGlobalVariables)
-        {
+        { //increment apporpriate counter for main/function variable declared
             if (inFunc)
             {
                 funcScopeCounter++;

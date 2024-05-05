@@ -23,7 +23,7 @@ private:
     std::string NameGenerator(NameType type); //generates label/temp variable name 
     void InitializeAsmVariables();//appends variable initializations at end of assembly string
     void ErrorHandler(std::string msg);//reports errors
-    int StackIndexFinder(std::string val);
+    int StackIndexFinder(std::string val); //finds position of variable in user declared variables stack
     std::string fileName;//output file name
     std::string output;//compiled UMSL ASM string
     std::string EvenOddLeftExprValue; //temp variable to track left expression value when using ... relational operator 
@@ -32,11 +32,11 @@ private:
     std::string functionName;//tracks name of programs function
     std::vector<std::string> tempVariables;//list to track declared/generated variable names
     std::vector<std::string> tempLabels;//list to track declared/generated variable names
-    int mainScopeCounter;
-    int funcScopeCounter;
+    int mainScopeCounter;//counts amount of vars declared in main (tape)
+    int funcScopeCounter; //counts amount of vars declared in function
     std::stack<std::string> namedVariables;//list to track declared variable names
-    bool finishedAddingGlobalVariables;
-    bool inFunc;
+    bool finishedAddingGlobalVariables; //flag raised when global vars have been declared
+    bool inFunc;//flag raised when generating function
     //constant to represent node labels
     const std::string PROGRAM_LABEL = "Program";
     const std::string FUNC_LABEL = "Func";
