@@ -10,11 +10,11 @@ RuntimeAnalyzer::RuntimeAnalyzer(char fileType)
     //determine name of file based on input method (file/keyboard)
     if (fileType == 'F')
     {
-        fileName = "file.txt";
+        fileName = "file.asm";
     }
     else if (fileType == 'K')
     {
-        fileName = "kb.txt";
+        fileName = "kb.asm";
     }
     else
     {
