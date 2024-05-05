@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <stack>
 #include <fstream>
 #include "TerminalNode.h"
 enum NameType
@@ -22,6 +23,7 @@ private:
     std::string NameGenerator(NameType type); //generates label/temp variable name 
     void InitializeAsmVariables();//appends variable initializations at end of assembly string
     void ErrorHandler(std::string msg);//reports errors
+    int StackIndexFinder(std::string val);
     std::string fileName;//output file name
     std::string output;//compiled UMSL ASM string
     std::string EvenOddLeftExprValue; //temp variable to track left expression value when using ... relational operator 
@@ -30,7 +32,11 @@ private:
     std::string functionName;//tracks name of programs function
     std::vector<std::string> tempVariables;//list to track declared/generated variable names
     std::vector<std::string> tempLabels;//list to track declared/generated variable names
-
+    int mainScopeCounter;
+    int funcScopeCounter;
+    std::stack<std::string> namedVariables;//list to track declared variable names
+    bool finishedAddingGlobalVariables;
+    bool inFunc;
     //constant to represent node labels
     const std::string PROGRAM_LABEL = "Program";
     const std::string FUNC_LABEL = "Func";

@@ -24,6 +24,10 @@ RuntimeAnalyzer::RuntimeAnalyzer(char fileType)
 //resets assembly output for reuse
 void RuntimeAnalyzer::Reset()
 {
+    finishedAddingGlobalVariables = false;
+    mainScopeCounter = 0;
+    funcScopeCounter = 0;
+    inFunc = false;
     output = "";
 }
 //generates label/temp variable name based on type enum
@@ -84,6 +88,24 @@ void RuntimeAnalyzer::ToAssembly()
     }
 
 }
+int RuntimeAnalyzer::StackIndexFinder(string val)
+{
+    int res;
+    std::stack<std::string> copy(namedVariables);
+    int i = 0;
+    while (copy.empty() == false)
+    {
+        if (copy.top() == val)
+        {
+            res = i;
+            break;
+        }
+        copy.pop();
+        i++;
+    }
+
+    return res;
+}
 //handles runtime semantics of program using parse tree
 //traverses nodes via recursion
 //checks label of each to see what terminal the node represents and then we generate appropriate UMSL assembly code
@@ -100,6 +122,10 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
     {
 
         SemanticsDriver(curNode->child1);
+        if (finishedAddingGlobalVariables == false)
+        {
+            finishedAddingGlobalVariables = true;
+        }
         output = output + "BR toProgram\n";
         if (curNode->child2 != nullptr)
         {
@@ -120,20 +146,41 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
             SemanticsDriver(curNode->child3);
         }
 
+        for (int i = 0;i < mainScopeCounter;i++)
+        {
+            output = output + "POP" + "\n";
+            namedVariables.pop();
+        }
+        mainScopeCounter = 0;
         output = output + "STOP\n";
         InitializeAsmVariables();
 
     }
     else if (curNode->label == FUNC_LABEL)
     {
+        inFunc = true;
 
         SemanticsDriver(curNode->child1);
+
+
+        for (int i = 0;i < funcScopeCounter;i++)
+        {
+            output = output + "POP" + "\n";
+            namedVariables.pop();
+        }
+        funcScopeCounter = 0;
+        inFunc = false;
 
     }
     else if (curNode->label == BLOCK_LABEL)
     {
+
+
         SemanticsDriver(curNode->child1);
+
         SemanticsDriver(curNode->child2);
+
+
     }
     else if (curNode->label == VARS_LABEL)
     {
@@ -151,6 +198,21 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         output = output + "STORE " + newVarName + "\n";
 
         tempVariables.push_back(newVarName);
+        namedVariables.push(newVarName);
+        output = output + "PUSH" + "\n";
+        output = output + "STACKW 0" + "\n";
+        if (finishedAddingGlobalVariables)
+        {
+            if (inFunc)
+            {
+                funcScopeCounter++;
+            }
+            else
+            {
+                mainScopeCounter++;
+            }
+
+        }
 
         if (curNode->tk5.GetVal() == ";")
         {
@@ -296,7 +358,12 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
     }
     else if (curNode->label == R_LABEL)
     {
-        if (curNode->tk1.GetType() == Identifier || curNode->tk1.GetType() == Literal_Int)
+        if (curNode->tk1.GetType() == Identifier)
+        {
+            output = output + "STACKR " + to_string(StackIndexFinder(curNode->tk1.GetVal())) + "\n";
+
+        }
+        else if (curNode->tk1.GetType() == Literal_Int)
         {
             output = output + "LOAD " + curNode->tk1.GetVal() + "\n";
         }
@@ -325,6 +392,9 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
     else if (curNode->label == IN_LABEL)
     {
         output = output + "READ " + curNode->tk2.GetVal() + "\n";
+        output = output + "LOAD " + curNode->tk2.GetVal() + "\n";
+        output = output + "STORE " + curNode->tk2.GetVal() + "\n";
+        output = output + "STACKW " + to_string(StackIndexFinder(curNode->tk2.GetVal())) + "\n";
     }
     else if (curNode->label == OUT_LABEL)
     {
@@ -424,6 +494,8 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
 
         output = output + remainLoopLabel + ": NOOP\n";
 
+        SemanticsDriver(curNode->child1);
+
         string LeftExprResultVar = NameGenerator(Variable);
         output = output + "LOAD " + LeftExprResultVar + "\n";
         SemanticsDriver(curNode->child2);
@@ -438,7 +510,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
 
         string exitLoopLabel = NameGenerator(Label);
 
-        SemanticsDriver(curNode->child1);
+
         if (curNode->child3->tk1.GetType() != Dot)
         {
             output = output + "SUB " + LeftExprResultVar + "\n";
@@ -466,6 +538,7 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         output = output + "STORE " + exprRes + "\n";
         output = output + "LOAD " + exprRes + "\n";
         output = output + "STORE " + reassignVar + "\n";
+        output = output + "STACKW " + to_string(StackIndexFinder(reassignVar)) + "\n";
     }
     else if (curNode->label == RO_LABEL)
     {
@@ -585,11 +658,11 @@ void RuntimeAnalyzer::SemanticsDriver(TerminalNode* curNode)
         }
         if (curNode->tk1.GetType() == OP_LessThan)
         { //x: 10, y: 20 x < y := y - x
-            output = output + "BRNEG " + lastSkipLabel + "\n";
+            output = output + "BRZNEG " + lastSkipLabel + "\n";
         }
         if (curNode->tk1.GetType() == OP_GreaterThan)
         {//x: 20, y: 10 x > y := y - x
-            output = output + "BRPOS " + lastSkipLabel + "\n";
+            output = output + "BRZPOS " + lastSkipLabel + "\n";
 
         }
         if (curNode->tk1.GetType() == OP_Equal)
